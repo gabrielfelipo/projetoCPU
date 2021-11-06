@@ -5,7 +5,7 @@ module RegDst(
     output wire     [4:0]  Data_out
 
 );
-
+    // 
     assign Data_out = (selector) ? Data_1[15:11] : Data_0;
 
 endmodule

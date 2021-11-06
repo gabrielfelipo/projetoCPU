@@ -3,6 +3,15 @@ module CPU (
     input wire reset
 );
 
+// flags
+
+    wire            Of;
+    wire            Ng;
+    wire            Zr;
+    wire            Eq;
+    wire            Gt;
+    wire            Lt;
+
 /////////////////// control wires //////////////////
 
     wire            PCWrite;
@@ -12,7 +21,10 @@ module CPU (
     wire            ABWrite;  
 
     wire            RegDst_sig;
+    wire            M_ULAA;
+    wire    [1:0]   M_ULAB;
 
+    wire    [2:0]   ULA_c;
 
 
 ////////////////////////////////////////////////////
@@ -34,7 +46,14 @@ module CPU (
     wire    [31:0]  R_to_A;
     wire    [31:0]  R_to_B;  
     wire    [31:0]  A_out;
-    wire    [31:0]  B_out;  
+    wire    [31:0]  B_out;
+
+    wire    [31:0]  Sign_E_out;
+
+    wire    [31:0]  ULAA_in;
+    wire    [31:0]  ULAB_in;
+
+    wire    [31:0]  ULA_out;
 ////////////////////////////////////////////////////
 
 
@@ -108,7 +127,52 @@ module CPU (
     );
 
     ALUSrcA mux_A (
-        
+        M_ULAA,
+        PC_out,
+        A_out,
+        ULAA_in
+    );
+
+    ALUSrcB mux_B (
+        M_ULAB,
+        B_out,
+        Sign_E_out,
+        ULAB_in
+    );
+
+    ula32 ULA(
+        ULAA_in,
+        ULAB_in,
+        ULA_c,
+        ULA_out,
+        Of,
+        Ng,
+        Zr,
+        Eq,
+        Gt,
+        Lt
+    );
+
+    Control Control_u (
+        clk,
+        reset,
+        Of,
+        Ng,
+        Zr,
+        Eq,
+        Gt,
+        Lt,
+        OPCODE,
+        PCWrite,
+        MemWrite,
+        IRWrite,
+        RegWrite,
+        ABWrite,
+        ULA_c,
+        RegDst_sig,
+        M_ULAA,
+        M_ULAB,
+        reset
     );
 
 endmodule
