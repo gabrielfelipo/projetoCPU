@@ -61,8 +61,205 @@ always @(posedge clk) begin
             RegWrite    =   1'b0;
             ABWrite     =   1'b0;
             ULA_c       =   3'b000;
+            RegDst_sig  =   1'b0;
+            M_ULAA      =   1'b0;
+            M_ULAB      =   2'b00;
+            rst_out     =   1'b1; ///
+            //setting counter for next operation
+
+            COUNTER     =   3'b000;
+        end
+        else begin
+            STATE = ST_COMMON;
+            PCWrite     =   1'b0;
+            MemWrite    =   1'b0;
+            IRWrite     =   1'b0;
+            RegWrite    =   1'b0;
+            ABWrite     =   1'b0;
+            ULA_c       =   3'b000;
+            RegDst_sig  =   1'b0;
+            M_ULAA      =   1'b0;
+            M_ULAB      =   2'b00;
+            rst_out     =   1'b0; /// modificação aqui
+            //setting counter for next operation
+
+            COUNTER     =   3'b000;
+            
         end
         
+    end
+    else begin
+        case (STATE)
+            ST_COMMON: begin
+                if (COUNTER == 3'b000 || COUNTER = 3'b001 || COUNTER = 3'b010) begin
+                    STATE = ST_COMMON;
+                    PCWrite     =   1'b0;
+                    MemWrite    =   1'b0; /// 
+                    IRWrite     =   1'b0;
+                    RegWrite    =   1'b0;
+                    ABWrite     =   1'b0;
+                    ULA_c       =   3'b001; /// 
+                    RegDst_sig  =   1'b0;
+                    M_ULAA      =   1'b0;   /// 
+                    M_ULAB      =   2'b01;  /// 
+                    rst_out     =   1'b0; 
+                    //setting counter for next operation
+
+                    COUNTER     =   COUNTER + 1;
+                end
+
+                else if (COUNTER == 3'b011) begin
+                    STATE = ST_COMMON;
+                    PCWrite     =   1'b1; ///
+                    MemWrite    =   1'b0; /// 
+                    IRWrite     =   1'b1; ///
+                    RegWrite    =   1'b0;
+                    ABWrite     =   1'b0;
+                    ULA_c       =   3'b001; /// 
+                    RegDst_sig  =   1'b0;
+                    M_ULAA      =   1'b0;   /// 
+                    M_ULAB      =   2'b01;  /// 
+                    rst_out     =   1'b0; 
+                    //setting counter for next operation
+
+                    COUNTER     =   COUNTER + 1;
+                    
+                end
+
+                else if (COUNTER == 3'b100) begin
+                    STATE = ST_COMMON;
+                    PCWrite     =   1'b0; 
+                    MemWrite    =   1'b0; 
+                    IRWrite     =   1'b0; 
+                    RegWrite    =   1'b0;
+                    ABWrite     =   1'b1;   ///
+                    ULA_c       =   3'b000;
+                    RegDst_sig  =   1'b0;
+                    M_ULAA      =   1'b0;
+                    M_ULAB      =   2'b00;
+                    rst_out     =   1'b0; 
+                    //setting counter for next operation
+
+                    COUNTER     =   COUNTER + 1;
+                end
+                else if (COUNTER == 3'b101) begin
+                    case (OPCODE)
+                        ADD: begin
+                            STATE = ST_ADD;
+                        end
+                        ADDI: begin
+                            STATE = ST_ADDI;
+                        end
+                        RESET: begin
+                            STATE = ST_RESET;
+                        end    
+                    endcase
+                    STATE = ST_COMMON;
+                    PCWrite     =   1'b0; 
+                    MemWrite    =   1'b0; 
+                    IRWrite     =   1'b0; 
+                    RegWrite    =   1'b0;
+                    ABWrite     =   1'b0;
+                    ULA_c       =   3'b000;
+                    RegDst_sig  =   1'b0;
+                    M_ULAA      =   1'b0;
+                    M_ULAB      =   2'b00;
+                    rst_out     =   1'b0; 
+                    //setting counter for next operation
+                    COUNTER     =   3'b000;
+                    
+                end
+            end
+
+            ST_ADD: begin
+                if (COUNTER == 3'b000) begin
+                    STATE = ST_ADD;
+                    PCWrite     =   1'b0; 
+                    MemWrite    =   1'b0; 
+                    IRWrite     =   1'b0; 
+                    RegWrite    =   1'b1;   ///
+                    ABWrite     =   1'b0;   
+                    ULA_c       =   3'b001; ///
+                    RegDst_sig  =   1'b1;   ///
+                    M_ULAA      =   1'b1;   ///
+                    M_ULAB      =   2'b00;  ///
+                    rst_out     =   1'b0; 
+                    //setting counter for next operation
+
+                    COUNTER     =   COUNTER + 1;
+                end
+                else if (COUNTER == 3'b001) begin
+                    STATE = ST_COMMON;
+                    PCWrite     =   1'b0; 
+                    MemWrite    =   1'b0; 
+                    IRWrite     =   1'b0; 
+                    RegWrite    =   1'b1;   ///
+                    ABWrite     =   1'b0;  
+                    ULA_c       =   3'b001; ///
+                    RegDst_sig  =   1'b1;   ///
+                    M_ULAA      =   1'b1;   ///
+                    M_ULAB      =   2'b00;  ///
+                    rst_out     =   1'b0; 
+                    //setting counter for next operation
+
+                    COUNTER     =   3'b000;
+                    end
+                end
+
+            ST_ADDI: begin
+                if (COUNTER == 3'b000) begin
+                    STATE = ST_ADDI;
+                    PCWrite     =   1'b0; 
+                    MemWrite    =   1'b0; 
+                    IRWrite     =   1'b0; 
+                    RegWrite    =   1'b1;   ///
+                    ABWrite     =   1'b0;   
+                    ULA_c       =   3'b001; ///
+                    RegDst_sig  =   1'b0;   ///
+                    M_ULAA      =   1'b1;   ///
+                    M_ULAB      =   2'b10;  ///
+                    rst_out     =   1'b0; 
+                    //setting counter for next operation
+
+                    COUNTER     =   COUNTER + 1;
+                end
+                else if (COUNTER == 3'b001) begin
+                    STATE = ST_COMMON;
+                    PCWrite     =   1'b0; 
+                    MemWrite    =   1'b0; 
+                    IRWrite     =   1'b0; 
+                    RegWrite    =   1'b1;   ///
+                    ABWrite     =   1'b0;  
+                    ULA_c       =   3'b001; ///
+                    RegDst_sig  =   1'b0;   ///
+                    M_ULAA      =   1'b1;   ///
+                    M_ULAB      =   2'b10;  ///
+                    rst_out     =   1'b0; 
+                    //setting counter for next operation
+
+                    COUNTER     =   3'b000;
+                end
+            end
+            ST_RESET: begin
+                if (COUNTER == 3'b000) begin
+                    STATE = ST_RESET;
+                    PCWrite     =   1'b0; 
+                    MemWrite    =   1'b0; 
+                    IRWrite     =   1'b0; 
+                    RegWrite    =   1'b0;   
+                    ABWrite     =   1'b0;   
+                    ULA_c       =   3'b000; 
+                    RegDst_sig  =   1'b0;   
+                    M_ULAA      =   1'b0;   
+                    M_ULAB      =   2'b00;  
+                    rst_out     =   1'b1; 
+                    //setting counter for next operation
+
+                    COUNTER     =   3'b000;
+                end
+                
+            end      
+        endcase
     end
 
 end
