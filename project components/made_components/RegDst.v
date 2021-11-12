@@ -8,7 +8,7 @@ module RegDst (
 );
 
     always @(*) begin
-        case
+        case(selector)
             3'b000: data_out = data0;
             3'b001: data_out = 32'b00000000000000000000000000011101;
             3'b010: data_out = 32'b00000000000000000000000000011111;

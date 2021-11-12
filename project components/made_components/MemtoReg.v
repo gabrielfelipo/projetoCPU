@@ -3,11 +3,11 @@ module MemtoReg (
     input wire [31:0] data0,
     input wire [31:0] data1,
     input wire [31:0] data2,
-    input wire [31:0] data3;
-    input wire [31:0] data4;
+    input wire [31:0] data3,
+    input wire [31:0] data4,
     input wire [31:0] data5,
-    input wire [31:0] data6;
-    input wire [31:0] data7;
+    input wire [31:0] data6,
+    input wire [31:0] data7,
 
     output wire [31:0] data_out
 );

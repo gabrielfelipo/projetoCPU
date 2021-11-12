@@ -4,9 +4,9 @@ module PCSource (
     input wire [31:0] data1,
     input wire [31:0] data2,
     input wire [31:0] data3,
-    input wire [31:0] data4
+    input wire [31:0] data4,
 
-    output wire [31:0] data_out,
+    output wire [31:0] data_out
 );
 
     always @(*) begin

@@ -1,13 +1,18 @@
 module CPU (
-    input wire clk, reset
+    input wire clk,
+    input wire reset
 );
-    // INSTRUCTION
-    wire [5:0] opcode;
-    wire [4:0] rs;
-    wire [4:0] rt;
-    wire [15:0] immediate;
-
     // DATA WIRES
+
+    	// 1 bit control wires
+	wire PC_w;
+	wire MemWrite;
+	wire IRWrite;
+	wire RegWrite;
+	wire ABWrite;
+    wire ALUoutWrite;
+    wire EPCWrite;
+
         // ALUSrcA entries
     wire [1:0] CtrlALUSrcA;
     wire [31:0] PC_out;
@@ -88,7 +93,133 @@ module CPU (
     wire [31:0] Extend16_32_out,
     wire [31:0] ShiftSrcA_out;
 
+        // ALU entries
+    wire [2:0] CtrlULA;
+    wire [31:0] ULA_out;
+        // ULA flags
+	wire Of; // overflow
+	wire Ng; // negative
+	wire Zr; // zero
+	wire Eq; // equal
+	wire Gt; // greater than
+	wire Lt; // less than
+
+        // IR entries
+    wire [5:0] opcode;
+    wire [4:0] rs;
+    wire [4:0] rt;
+    wire [15:0] immediate;
+    // Memdata_out already instantiated
+
+        // Memdata entries
+    // all entries already instantiated
+
+        // PC entries
+    // all entries already instantiated
+
+        // RegBase entries
+    wire [31:0] RB_to_A;
+	wire [31:0] RB_to_B;
+        // other entries already instantiated
+
+        // A and B entries
+    wire [31:0] A_out;
+	wire [31:0] B_out;
+        // other entries already instantiated
+
+        // ALUout (register) entries
+    wire [31:0] ALUout_out;
+        // other entries already instantiated
+    
+        // EPC entries
+    wire [31:0] EPC_out;
+        // other entries already instantiated
+    
 ////////////////////////////////////////////////////
+
+    Registrador EPC_(
+        clk,
+        reset,
+        EPCWrite,
+        ALU_result,
+        EPC_out
+    );
+
+    Registrador ALUout_(
+        clk,
+        reset,
+        ALUoutWrite,
+        ALU_result,
+        ALUout_out
+    );
+
+    Registrador A_(
+		clk,
+		reset,
+		ABWrite,
+		RB_to_A,
+		A_out
+	);
+
+	Registrador B_(
+		clk,
+		reset,
+		ABWrite,
+		RB_to_B,
+		B_out
+	);
+
+    Banco_reg RegBase_(
+        clk,
+        reset,
+        RegWrite,
+        rs,
+        rt,
+        RegDst_out,
+        MemtoReg_out,
+        RB_to_A,
+		RB_to_B
+    );
+
+    Registrador PC_(
+        clk,
+        reset,
+        PC_w,
+        PCSource_out,
+        PC_out
+    );
+
+    Memoria Memdata_(
+        Iord_out,
+        clk,
+        MemWrite,
+        ULA_out,
+        Memdata_out
+    );
+
+    Instr_Reg IR_(
+        clk,
+        reset,
+        IRWrite,
+        Memdata_out,
+        opcode,
+        rs,
+        rt,
+        immediate
+    );
+
+    ula32 ULA_(
+		ALUSrcA_out,
+		ALUSrcB_out,
+		CtrlULA,
+		ULA_out,
+		Of,
+		Ng,
+		Zr,
+		Eq,
+		Gt,
+		Lt
+	);
 
     ShiftSrcB M_ShiftSrcB_(
         CtrlShifSrcB,
