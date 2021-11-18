@@ -36,6 +36,9 @@ module CPU (
     wire    [4:0]   RS;
     wire    [4:0]   RT;
     wire    [15:0]  OFFSET;
+    wire    [5:0]   FUNCT;
+
+    assign FUNCT = OFFSET[5:0];
 
     wire    [4:0]   WriteRegister // saída do RegDst
 

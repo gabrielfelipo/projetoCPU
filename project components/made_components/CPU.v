@@ -6,7 +6,7 @@ module CPU (
 
     // PS: quem comentar essa porra de codigo, se certifique que o comentário
     // é de relevância, não deixe o cógido mais confuso do que já tá
-
+    // comi a irmã de felipo
 ////////////////////////////////////////////CONTROL WIRES////////////////////////////////////////////
     	// 1 bit control wires
 	wire PC_w;
@@ -117,8 +117,9 @@ module CPU (
     wire [4:0] rs;
     wire [4:0] rt;
     wire [15:0] immediate;
- 
-
+    
+    wire [5:0] funct;
+    assign funct = immediate[5:0];
    
 
         // RegBase entries
@@ -316,6 +317,39 @@ module CPU (
         ALUSrcB_out
     );
 
+    // unidade de controle ainda tá incompleta
+    Control Control_u(
+        clk,
+        reset,
+        Of, // overflow
+        Ng, // negative
+        Zr, // zero
+        Eq, // equal
+        Gt, // greater than
+        Lt, // less than
+        opcode,
+        funct,
+        PC_w,
+	    MemWrite,
+        MemRead,
+	    IRWrite,
+	    RegWrite,
+	    ABWrite,
+        ALUoutWrite,
+        EPCWrite,
+        CtrlALUSrcA,
+        CtrlALUSrcB,
+        CtrlRegDst,
+        CtrlPCSource,
+        CtrlMemtoReg,
+        CtrlIord,
+        CtrlShifSrcA,
+        CtrlShifSrcB,
+        CtrlDivSrcA,
+        CtrlDivSrcB,
+        CtrlMuxSSrcB,
+        CtrlULA //ALUOP
+    );
     
 
 endmodule

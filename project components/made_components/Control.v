@@ -1,5 +1,12 @@
 // ainda ta faltando alguns sinais no controle
 
+// eu decidi excluir o sinal de reset auxiliar do tutorial
+// (reset_out), acho que desse jeito que tá aí pode rodar de boa.
+// Além disso, fiquei em dúvida no final do CLOSEWRITE, tinha um wait
+// com PC_w = 0, mas esse sinal já era zerado no ciclo anterior.
+// Botei assim do mesmo jeito pq tava no diagrama né kkkkkkkk
+// qqlr coisa vcs mudam aí.
+
 module Control (
     input wire      clk,
     input wire      reset,
@@ -66,20 +73,24 @@ parameter DECODE2 = 7'd4;
 parameter WAIT = 7'd5;
 parameter EXECUTE = 7'd6;
 
+parameter ADD_SUB_AND = 7'd7;
+parameter CLOSEWRITE = 7'd8;
+parameter WAIT_END = 7'd9;
 
 
 // instruções R
 parameter R_FORMAT = 6'd0;
+// FUNCT
 parameter ADD = 6'h20;
 parameter AND = 6'h24;
+parameter SUB = 6'h22;
 
-
-
+// pra primeira entrega faz só essas 2 instruções que sao mto parecidas
 
 
 
 initial begin
-    rst_out = 1'b1;
+    STATE = FETCH1;
 end
 
 
@@ -87,13 +98,13 @@ end
 always @(posedge clk) begin
 
     if (reset == 1'b1) begin
-            PC_w = 0;
-            MemWrite = 0;
-            IRWrite = 0;
-            RegWrite = 1;
-            ABWrite = 0;
-            ALUoutWrite = 0;
-            EPCWrite = 0;
+            PC_w = 1'b0;
+            MemWrite = 1'b0;
+            IRWrite = 1'b0;
+            RegWrite = 1'b1;
+            ABWrite = 1'b0;
+            ALUoutWrite = 1'b0;
+            EPCWrite = 1'b0;
 
             CtrlALUSrcA = 2'b00;
             CtrlALUSrcB = 2'b00;
@@ -103,14 +114,14 @@ always @(posedge clk) begin
             CtrlIord = 3'b000;
 
 
-            CtrlShifSrcA = 0;
-            CtrlShifSrcB = 0;
+            CtrlShifSrcA = 1'b0;
+            CtrlShifSrcB = 1'b0;
 
-            CtrlDivSrcA = 0;
+            CtrlDivSrcA = 1'b0;
             CtrlDivSrcB = 2'b00;
 
 
-            CtrlMuxSSrcB = 0;
+            CtrlMuxSSrcB = 1'b0;
 
             CtrlULA = 3'b000;
 
@@ -171,11 +182,61 @@ always @(posedge clk) begin
 
                         case(OPCODE)
                             R_FORMAT: begin
+                                case (FUNCT)
+                                    ADD: begin
+                                        CtrlALUSrcA = 2'b10;
+                                        CtrlALUSrcB = 2'b00;
+                                        CtrlULA = 3'b001;
+
+                                        STATE = ADD_SUB_AND;
+                                    end 
+                                    AND: begin
+                                        CtrlALUSrcA = 2'b10;
+                                        CtrlALUSrcB = 2'b00;
+                                        CtrlULA = 3'b011;
+
+                                        STATE = ADD_SUB_AND;
+                                    end
+                                    SUB: begin
+                                        CtrlALUSrcA = 2'b10;
+                                        CtrlALUSrcB = 2'b00;
+                                        CtrlULA = 3'b010;
+
+                                        STATE = ADD_SUB_AND;
+                                    end
+                                    
+                                endcase
                                 
                             end
 
+                        endcase
+
                             // default: OPCODE INEXISTENTE! COMPLETAR DEPOIS 
                 end
+            ADD_SUB_AND: begin
+                    
+                    CtrlMemtoReg = 4'b1000;
+                    RegWrite = 1'b1;
+                    CtrlRegDst = 3'b011;
+
+                    STATE = CLOSEWRITE;
+            end
+
+            CLOSEWRITE: begin
+                    ALUoutWrite = 1'b0;
+                    RegWrite = 1'b0;
+                    PC_w = 1'b0;
+                    // ainda falta sinais aqui, completar depois
+
+                    STATE = WAIT_END;
+
+            end
+            WAIT_END: begin
+                    PC_w = 1'b0;
+
+                    STATE = FETCH1;
+            end
+                
 
                 
             endcase
